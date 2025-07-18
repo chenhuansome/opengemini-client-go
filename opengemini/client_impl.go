@@ -33,13 +33,14 @@ type endpoint struct {
 }
 
 type client struct {
-	config      *Config
-	endpoints   []endpoint
-	cli         *http.Client
-	prevIdx     atomic.Int32
-	dataChanMap syncx.Map[dbRp, chan *sendBatchWithCB]
-	metrics     *metrics
-	rpcClient   *writerClient
+	config       *Config
+	endpoints    []endpoint
+	cli          *http.Client
+	prevIdx      atomic.Int32
+	dataChanMap  syncx.Map[dbRp, chan *sendBatchWithCB]
+	metrics      *metrics
+	rpcClient    *writerClient
+	interceptors []Interceptor
 
 	batchContext       context.Context
 	batchContextCancel context.CancelFunc
@@ -47,6 +48,9 @@ type client struct {
 	logger *slog.Logger
 }
 
+func (c *client) Interceptors(interceptor ...Interceptor) {
+	c.interceptors = append(c.interceptors, interceptor...)
+}
 func newClient(c *Config) (Client, error) {
 	if len(c.Addresses) == 0 {
 		return nil, ErrNoAddress

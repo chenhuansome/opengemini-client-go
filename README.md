@@ -129,3 +129,19 @@ for _, r := range res.Results {
 	}
 }
 ```
+Main function usage examples
+
+```go
+class Main {
+  static func initOtel() func()
+  static func main()
+  static func performQuery(context.Context, string) error
+}
+
+The implementation and association relationships between interfaces and classes
+Client --> Interceptor : contains multiple
+OtelClient --> Interceptor : implement
+Main --> Client : use
+Main --> OtelClient : initialize and add to Client
+}
+```

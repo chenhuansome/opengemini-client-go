@@ -129,3 +129,19 @@ for _, r := range res.Results {
 	}
 }
 ```
+
+主函数使用示例
+
+```go
+class Main {
+  static func initOtel() func()
+  static func main()
+  static func performQuery(context.Context, string) error
+}
+
+' 接口与类之间的实现、关联关系
+Client --> Interceptor : 包含多个
+OtelClient --> Interceptor : 实现
+Main --> Client : 使用
+Main --> OtelClient : 初始化并添加到 Client
+```

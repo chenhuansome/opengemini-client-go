@@ -15,6 +15,8 @@
 package opengemini
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"sort"
 	"testing"
@@ -26,8 +28,20 @@ import (
 
 func TestClientShowTagKeys(t *testing.T) {
 	c := testDefaultClient(t)
+	otelShutdown, err := setupOTelSDK(context.Background())
+	if err != nil {
+		return
+	}
+	//Handle shutdown properly so nothing leaks.
+	defer func() {
+		err = errors.Join(err, otelShutdown(context.Background()))
+	}()
+	//Register the OtelCClient interceptor
+	c.Interceptors(&OtelClient{})
+
 	databaseName := randomDatabaseName()
-	err := c.CreateDatabase(databaseName)
+	err = c.CreateDatabase(databaseName)
+	return
 	require.Nil(t, err)
 	measurement := randomMeasurement()
 	cmd := fmt.Sprintf("CREATE MEASUREMENT %s (tag1 TAG,tag2 TAG,tag3 TAG, field1 INT64 FIELD, field2 BOOL, field3 STRING, field4 FLOAT64)", measurement)

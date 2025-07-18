@@ -15,6 +15,7 @@
 package opengemini
 
 import (
+	"context"
 	"fmt"
 	"strings"
 )
@@ -26,11 +27,19 @@ func (c *client) CreateDatabase(database string) error {
 	}
 
 	cmd := fmt.Sprintf("CREATE DATABASE \"%s\"", database)
+	query := Query{Command: cmd}
+	for _, interceptor := range c.interceptors {
+		interceptor.QueryBefore(context.Background(), &query)
+	}
+
 	queryResult, err := c.queryPost(Query{Command: cmd})
 	if err != nil {
 		return err
 	}
 
+	//for _, interceptor := range c.interceptors {
+	//	interceptor.QueryAfter(context.Background(), &queryResult)
+	//}
 	err = queryResult.hasError()
 	if err != nil {
 		return fmt.Errorf("create database %w", err)
@@ -54,6 +63,7 @@ func (c *client) CreateDatabaseWithRp(database string, rpConfig RpConfig) error 
 		buf.WriteString(fmt.Sprintf(" INDEX DURATION %s", rpConfig.IndexDuration))
 	}
 	buf.WriteString(fmt.Sprintf(" NAME %s", rpConfig.Name))
+
 	queryResult, err := c.queryPost(Query{Command: buf.String()})
 	if err != nil {
 		return err
@@ -69,6 +79,12 @@ func (c *client) CreateDatabaseWithRp(database string, rpConfig RpConfig) error 
 
 func (c *client) ShowDatabases() ([]string, error) {
 	var ShowDatabases = "SHOW DATABASES"
+	cmd := "SHOW DATABASES"
+	query := Query{Command: cmd}
+	for _, interceptor := range c.interceptors {
+		interceptor.QueryBefore(context.Background(), &query)
+	}
+
 	queryResult, err := c.Query(Query{Command: ShowDatabases})
 	if err != nil {
 		return nil, err
@@ -104,6 +120,12 @@ func (c *client) DropDatabase(database string) error {
 	}
 
 	cmd := fmt.Sprintf("DROP DATABASE \"%s\"", database)
+
+	query := Query{Command: cmd}
+	for _, interceptor := range c.interceptors {
+		interceptor.QueryBefore(context.Background(), &query)
+	}
+
 	queryResult, err := c.queryPost(Query{Command: cmd})
 	if err != nil {
 		return err

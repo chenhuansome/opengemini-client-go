@@ -126,11 +126,20 @@ func (c *client) encodeBatchPoints(bp []*Point) (*bytes.Buffer, error) {
 
 func (c *client) writeBytesBuffer(ctx context.Context, database string, rp string, buffer *bytes.Buffer) error {
 	resp, err := c.innerWrite(ctx, database, rp, buffer)
+
+	//for _, interceptor := range c.interceptors {
+	//interceptor.WriteBefore(context.Background(), query)
+	//}
+
 	if err != nil {
 		return errors.New("innerWrite request failed, error: " + err.Error())
 	}
-
 	defer resp.Body.Close()
+
+	//for _, interceptor := range c.interceptors {
+	//	interceptor.WriteAfetr(context.Background(),)
+	//}
+
 	if resp.StatusCode != http.StatusNoContent {
 		errorBody, err := io.ReadAll(resp.Body)
 		if err != nil {

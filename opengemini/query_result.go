@@ -28,6 +28,7 @@ type SeriesResult struct {
 type QueryResult struct {
 	Results []*SeriesResult `json:"results,omitempty" msgpack:"results,omitempty"`
 	Error   string          `json:"error,omitempty" msgpack:"error,omitempty"`
+	Command any
 }
 
 func (result *QueryResult) hasError() error {

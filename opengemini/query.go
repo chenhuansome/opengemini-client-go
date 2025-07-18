@@ -15,6 +15,7 @@
 package opengemini
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -85,7 +86,12 @@ func (c *client) queryPost(q Query) (*QueryResult, error) {
 
 	resp, err := c.executeHttpPost(UrlQuery, req)
 	if err != nil {
+
 		return nil, errors.New("request failed, error: " + err.Error())
+	}
+
+	for _, interceptor := range c.interceptors {
+		interceptor.QueryAfter(context.Background(), resp)
 	}
 	qr, err := retrieveQueryResFromResp(resp)
 	if err != nil {
